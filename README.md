@@ -2,15 +2,20 @@
 This project is a prototype for ingesting and processing metadata in near real-time using Go, Redis, and Gin. It supports dynamic operations based on the source of the metadata and pushes the processed data to downstream services.
 
 ## Features
-### Ingest Metadata: Ingest metadata from different sources and apply dynamic operations based on the source configuration.
-### Pre-Process Metadata: Apply operations such as adding a timestamp or processing information to the metadata.
-### Store Processed Metadata: Store the processed metadata in Redis.
-### Post-Process Metadata: Push the processed metadata to downstream services.
-### Dynamic Operations: Configure different operations for different sources.
+### Ingest Metadata:
+    Ingest metadata from different sources and apply dynamic operations based on the source configuration.
+### Pre-Process Metadata: 
+    Apply operations such as adding a timestamp or processing information to the metadata.
+### Store Processed Metadata: 
+    Store the processed metadata in Redis.
+### Post-Process Metadata: 
+    Push the processed metadata to downstream services.
+### Dynamic Operations: 
+    Configure different operations for different sources.
 
 ## Requirements
-Go 1.16 or later
-Redis
+### Go 1.16 or later
+### Redis
 
 ## Installation
 
