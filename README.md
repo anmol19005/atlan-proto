@@ -43,15 +43,18 @@ Configure operations for different sources in main.go:
         configs := []utils.OperationConfig{
             {
                 Source:     "jira",
-                Operations: []string{"add_timestamp", "add_processing_info"},
+                PreOperations:  []string{"add_timestamp"},
+                PostOperations: []string{"add_processing_info"},
             },
             {
                 Source:     "github",
-                Operations: []string{"add_timestamp"},
+                PreOperations:  []string{"add_timestamp"},
+                PostOperations: []string{"add_processing_info"},
             },
             {
                 Source:     "serviceX",
-                Operations: []string{"add_processing_info"},
+                PreOperations:  []string{"add_timestamp"},
+                PostOperations: []string{"add_processing_info"},
             },
         }
     
@@ -59,6 +62,9 @@ Configure operations for different sources in main.go:
             utils.SetOperationsConfig(redisClient, config)
         }
     }
+
+    <img width="606" alt="image" src="https://github.com/user-attachments/assets/ee391fd4-e6dc-420b-a044-d9c3778ae3f1">
+
 
 ## Usage
 
