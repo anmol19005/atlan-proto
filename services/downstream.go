@@ -4,6 +4,6 @@ import (
 	"log"
 )
 
-func pushToDownstream(metadata string) {
-	log.Printf("Pushing metadata to downstream services: %s", metadata)
+func pushToDownstream(payload []byte) {
+	log.Printf("Pushing payload to downstream services: %s", string(payload))
 }
