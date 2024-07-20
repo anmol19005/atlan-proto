@@ -4,40 +4,45 @@ import (
 	"context"
 	"encoding/json"
 	"log"
-	"time"
+
+	"atlan-proto/utils"
 
 	"github.com/go-redis/redis/v8"
 )
 
 func PostConsumeTransformations(redisClient *redis.Client) {
-	for {
-		keys, err := redisClient.Keys(context.Background(), "payload:*").Result()
-		if err != nil {
-			log.Printf("Could not retrieve payload keys: %v", err)
+	subscriber := redisClient.Subscribe(context.Background(), "postProcessChannel")
+	channel := subscriber.Channel()
+
+	for msg := range channel {
+		var payload GenericPayload
+		if err := json.Unmarshal([]byte(msg.Payload), &payload); err != nil {
+			log.Printf("Failed to unmarshal payload: %v", err)
 			continue
 		}
 
-		for _, key := range keys {
-			payloadStr, err := redisClient.Get(context.Background(), key).Result()
-			if err != nil {
-				log.Printf("Could not retrieve payload for key %s: %v", key, err)
-				continue
-			}
+		log.Printf("Post-processing payload: %s", payload.ID)
 
-			var payload GenericPayload
-			if err := json.Unmarshal([]byte(payloadStr), &payload); err != nil {
-				log.Printf("Failed to unmarshal payload: %v", err)
-				continue
-			}
-
-			log.Printf("Post-processing payload: %s", payload.ID)
-			pushToDownstream(payloadStr)
-			//deletes the key once pushing data
-			// err = redisClient.Del(context.Background(), key).Err()
-			// if err != nil {
-			// 	log.Printf("Could not delete payload for key %s: %v", key, err)
-			// }
+		config, err := utils.GetOperationsConfig(redisClient, payload.Source)
+		if err != nil {
+			log.Printf("Failed to get operations config for source %s: %v", payload.Source, err)
+			continue
 		}
-		time.Sleep(10 * time.Second) // Interval for processing payloads
+
+		payload = executeOperations(payload, config.PostOperations)
+
+		updatedPayload, err := json.Marshal(payload)
+		if err != nil {
+			log.Printf("Failed to marshal payload: %v", err)
+			continue
+		}
+
+		// Push processed payload to downstream services
+		pushToDownstream(updatedPayload)
+
+		err = redisClient.Del(context.Background(), "processed:"+payload.ID).Err()
+		if err != nil {
+			log.Printf("Could not delete payload for key %s: %v", payload.ID, err)
+		}
 	}
 }
