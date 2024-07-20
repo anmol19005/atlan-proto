@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"atlan-proto/utils"
-
 	"github.com/go-redis/redis/v8"
 )
 
@@ -62,7 +61,7 @@ func PreProcessMetadata(redisClient *redis.Client) {
 			continue
 		}
 
-		payload = executeOperations(payload, config.Operations)
+		payload = executeOperations(payload, config.PreOperations)
 
 		updatedPayload, err := json.Marshal(payload)
 		if err != nil {
@@ -70,7 +69,8 @@ func PreProcessMetadata(redisClient *redis.Client) {
 			continue
 		}
 
-		err = redisClient.Set(context.Background(), "payload:"+payload.ID, updatedPayload, 0).Err()
+		// Store processed payload in Redis
+		err = redisClient.Set(context.Background(), "processed:"+payload.ID, updatedPayload, 0).Err()
 		if err != nil {
 			log.Printf("Could not store payload in Redis: %v", err)
 		}
