@@ -89,9 +89,11 @@ Consume metadata:
 
 
 # Flow
-    # Ingest Metadata: Client sends a POST request to /ingest endpoint with metadata.
-    # Pre-Process Metadata: The metadata is published to a Redis channel, where it is picked up by the pre-processing service.
-    # Apply Operations: The pre-processing service fetches the operations configuration based on the source and applies the configured operations.
-    # Store Processed Metadata: The processed metadata is stored in Redis.
-    # Post-Process Metadata: The post-processing service retrieves the processed metadata from Redis, pushes it to downstream services, and deletes the entry from Redis.
-    # Consume Metadata: Client sends a GET request to /consume endpoint to retrieve processed metadata.
+    1. In-memory DB (Redis) stores partner-specific operations details for pre and post transformations.
+    2. Client Systems send metadata change events to the HTTP Server.
+    3. The HTTP Server authenticates the requests using Auth and forwards them to the Message Broker (Kafka), specifically to the pre_process_meta_data_events topic.
+    4. Pre-Ingest Transformer (Go Routine) subscribes to the Channel (Kafka topic) and preprocesses the metadata events by reading partner configurations from Redis.
+    5. Preprocessed events are stored in Redis (Meta data store DynamoBd) under processed:<id>.
+    6. Post-Consume Transformations (Go Routine) functions read the processed data from Redis (Meta data store DynamoBd), apply post-transformations using configurations from Redis (for that partner), and publish events to the post_process_meta_data_events Kafka topic.
+    7. Downstream Systems (Workers) consume events from Kafka and perform required actions, such as enforcing data access security.
+    8. Observability tools like New Relic and Grafana monitor the entire workflow, providing real-time logging and performance metrics.
