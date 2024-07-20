@@ -1,14 +1,12 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"time"
 
-	"context"
-
 	"atlan-proto/services"
-
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
 )
@@ -29,7 +27,7 @@ func IngestHandler(redisClient *redis.Client) gin.HandlerFunc {
 			return
 		}
 
-		// Publish payload to the channel
+		// Publish payload to the pre-process channel in Redis
 		redisClient.Publish(context.Background(), "preProcessChannel", jsonData)
 
 		c.JSON(http.StatusOK, gin.H{"message": "Payload received"})
