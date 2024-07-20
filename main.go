@@ -14,16 +14,19 @@ import (
 func setupOperationsConfig(redisClient *redis.Client) {
 	configs := []utils.OperationConfig{
 		{
-			Source:     "jira",
-			Operations: []string{"add_timestamp", "add_processing_info"},
+			Source:         "jira",
+			PreOperations:  []string{"add_timestamp"},
+			PostOperations: []string{"add_processing_info"},
 		},
 		{
-			Source:     "github",
-			Operations: []string{"add_timestamp"},
+			Source:         "github",
+			PreOperations:  []string{"add_timestamp"},
+			PostOperations: []string{"add_processing_info"},
 		},
 		{
-			Source:     "serviceX",
-			Operations: []string{"add_processing_info"},
+			Source:         "serviceX",
+			PreOperations:  []string{"add_timestamp"},
+			PostOperations: []string{"add_processing_info"},
 		},
 	}
 
