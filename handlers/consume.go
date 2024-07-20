@@ -6,14 +6,13 @@ import (
 	"net/http"
 
 	"atlan-proto/services"
-
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
 )
 
 func ConsumeHandler(redisClient *redis.Client) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		keys, err := redisClient.Keys(context.Background(), "payload:*").Result()
+		keys, err := redisClient.Keys(context.Background(), "processed:*").Result()
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not retrieve payload keys"})
 			return
