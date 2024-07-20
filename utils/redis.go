@@ -11,8 +11,9 @@ import (
 var ctx = context.Background()
 
 type OperationConfig struct {
-	Source     string   `json:"source"`
-	Operations []string `json:"operations"`
+	Source         string   `json:"source"`
+	PreOperations  []string `json:"pre_operations"`
+	PostOperations []string `json:"post_operations"`
 }
 
 func InitRedis() *redis.Client {
@@ -20,7 +21,7 @@ func InitRedis() *redis.Client {
 		Addr: "localhost:6379",
 	})
 
-	_, err := redisClient.Ping(context.Background()).Result()
+	_, err := redisClient.Ping(ctx).Result()
 	if err != nil {
 		log.Fatalf("Could not connect to Redis: %v", err)
 	}
